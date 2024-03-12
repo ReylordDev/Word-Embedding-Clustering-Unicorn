@@ -1,2 +1,4 @@
 *.csv
 !test_input_file.csv
+.vscode
+__pycache__
