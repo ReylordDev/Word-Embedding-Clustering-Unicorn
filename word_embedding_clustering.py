@@ -72,6 +72,7 @@ __maintainer__ = "Benjamin Paaßen"
 __email__ = "bpaassen@techfak.uni-bielefeld.de"
 
 
+import torch
 import word_embedding_clustering_functions
 from collections import Counter
 import csv
@@ -83,7 +84,7 @@ from sentence_transformers import SentenceTransformer
 
 # The path to the input CSV file from which we read all the stereotypes
 # that participants answered.
-DATA_INPUT_FILE = "test_input_file.csv"
+DATA_INPUT_FILE = "test_input_file_2.csv"
 
 # The character that is used to delimit columns in the input (and output)
 # file
@@ -95,13 +96,14 @@ STEREOTYPE_COLUMN = "Stereotype%d"
 
 # The maximum number of stereotypes each study participant can provide/
 # the number of stereotype columns we check for
-NUM_STEREOTYPES = 1
+NUM_STEREOTYPES = 3
 
 # stereotypes which should be excluded from the analysis.
 EXCLUDED_STEREOTYPES = ["", "white"]
 
 # The language model to be used for word embeddings
-LANGUAGE_MODEL = "BAAI/bge-large-en-v1.5"
+# LANGUAGE_MODEL = "BAAI/bge-large-en-v1.5"
+LANGUAGE_MODEL = "mixedbread-ai/mxbai-embed-large-v1"
 
 # If this is True, the script will show intermediate plots to illustrate
 # the outlier detection and the choice of K. If False, the plots won't be
@@ -129,7 +131,7 @@ HELP_CHOOSE_NUM_CLUSTERS = True
 # this parameter.
 # If HELP_CHOOSE_NUM_CLUSTERS is True, this parameter may be overriden
 # by the user when executing the script.
-NUM_CLUSTERS = 3
+NUM_CLUSTERS = 4
 
 # The cosine similarity threshold above which neighboring clusters
 # get merged together. If this should not be done, set the threshold
@@ -216,19 +218,10 @@ stereotypes = list(stereotype_counts.keys())
 print("Starting step 2 of 6: Generating word embeddings.")
 
 print(f"Embedding {len(stereotypes)} unique stereotypes. This may take a few seconds.")
-embeddings = model.encode(
-    stereotypes
+embeddings_normalized = model.encode(
+    stereotypes, normalize_embeddings=True
 )  # shape (no_of_unique_stereotypes, embedding_dim)
-
-# normalize the embeddings
-embeddings_normalized = embeddings / np.linalg.norm(
-    embeddings, axis=1, keepdims=True, ord=2
-)
-
-# # compute the (Euclidean) length of each embedding vector
-# Z = np.sqrt(np.sum(embeddings**2, 1))
-# # divide each embedding vector by its length
-# embeddings_normalized = embeddings / np.expand_dims(Z, 1)
+embeddings_normalized = torch.Tensor(embeddings_normalized)
 
 print(
     f"Filtering out words that are outliers, in the sense that their average cosine similarity to the {OUTLIER_K} nearest neighbors is at least {OUTLIER_DETECTION_THRESHOLD} standard deviations below the average."
@@ -330,7 +323,7 @@ with open(CLUSTERING_OUTPUT_FILE, "w", encoding="utf-8") as f:
             col_idx = in_cluster_k[i]
             stereotype = stereotypes[col_idx]
             k = cluster_idxs[col_idx]
-            s = sim[i]
+            s = sim[i].item()
             writer.writerow([stereotype, k, s])
 
 # compute the pairwise similarities between all cluster centers

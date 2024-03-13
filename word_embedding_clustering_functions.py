@@ -42,6 +42,9 @@ __email__ = "bpaassen@techfak.uni-bielefeld.de"
 import os
 from typing import Optional
 
+from torch import Tensor
+import torch
+
 os.environ["OPENBLAS_NUM_THREADS"] = "8"
 os.environ["NUM_THREADS"] = "8"
 os.environ["OMP_NUM_THREADS"] = "8"
@@ -57,11 +60,11 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 def outlier_detection(
     stereotypes: list[str],
-    embeddings_normalized: np.ndarray,
+    embeddings_normalized: Tensor,
     OUTLIER_K=5,
     OUTLIER_DETECTION_THRESHOLD=1,
     SHOW_PLOTS=False,
-) -> tuple[list[str], np.ndarray]:
+) -> tuple[list[str], Tensor]:
     """Excludes stereotypes from the given list which have lower average
     cosine similarity to their OUTLIER_K nearest neighbors than
     OUTLIER_DETECTION_THRESHOLD times the standard deviation below the mean.
@@ -130,7 +133,7 @@ def outlier_detection(
 
 
 def find_number_of_clusters(
-    embeddings_normalized: np.ndarray,
+    embeddings_normalized: Tensor,
     MAX_NUM_CLUSTERS: int,
     sample_weights: Optional[np.ndarray] = None,
     SHOW_PLOTS=False,
@@ -198,7 +201,7 @@ def find_number_of_clusters(
         # stereotype was named
         clustering.fit(embeddings_normalized, sample_weight=sample_weights)
         # compute the silhouette score and store it
-        sil = silhouette_score(embeddings_normalized, clustering.labels_)
+        sil = silhouette_score(np.asarray(embeddings_normalized), clustering.labels_)
         sils.append(sil)
         # compute the BIC score, which is a combination of the distance of each
         # stereotype to its cluster center - provided by the clustering itself -
@@ -236,12 +239,12 @@ def find_number_of_clusters(
 
 def cluster_and_merge(
     stereotypes: list[str],
-    embeddings_normalized: np.ndarray,
+    embeddings_normalized: Tensor,
     K: int,
     sample_weights: Optional[np.ndarray] = None,
     MERGE_THRESHOLD=1.0,
     SHOW_PLOTS=False,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, Tensor]:
     """Clusters the data using KMeans and merges closeby clusters using
     complete linkage clustering on the cosine similarity.
 
@@ -282,8 +285,10 @@ def cluster_and_merge(
     # extract the cluster indices for all data points
     cluster_idxs = np.copy(clustering.labels_)
     # get the normalized cluster means
-    Z = np.sqrt(np.sum(clustering.cluster_centers_**2, 1))
-    centers_normalized = clustering.cluster_centers_ / np.expand_dims(Z, 1)
+    centers_normalized = clustering.cluster_centers_ / np.linalg.norm(
+        clustering.cluster_centers_, axis=1, keepdims=True, ord=2
+    )
+    centers_normalized = torch.tensor(centers_normalized)
 
     if sample_weights is None:
         sample_weights = np.ones(len(stereotypes))
@@ -310,7 +315,7 @@ def cluster_and_merge(
             linkage="complete",
             metric="cosine",
         )
-        meta_clustering.fit(centers_normalized)
+        meta_clustering.fit(np.asarray(centers_normalized))
 
         # print which clusters got merged together
         if SHOW_PLOTS:
@@ -340,5 +345,6 @@ def cluster_and_merge(
         # normalize the cluster centers again to unit length
         Z = np.sqrt(np.sum(centers_new**2, 1))
         centers_normalized = centers_new / np.expand_dims(Z, 1)
+        centers_normalized = torch.tensor(centers_normalized, dtype=torch.float32)
 
     return cluster_idxs, centers_normalized
