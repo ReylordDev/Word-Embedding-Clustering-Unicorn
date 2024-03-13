@@ -124,19 +124,19 @@ MAX_NUM_CLUSTERS = 15
 
 # Whether we want to run the auxiliary functions to help choose the
 # NUM_CLUSTERS parameter
-HELP_CHOOSE_NUM_CLUSTERS = True
+HELP_CHOOSE_NUM_CLUSTERS = False
 
 # The number of clusters we use for clustering in step 4.
 # NOTE: This script also contains auxiliary functions to help with choosing
 # this parameter.
 # If HELP_CHOOSE_NUM_CLUSTERS is True, this parameter may be overriden
 # by the user when executing the script.
-NUM_CLUSTERS = 4
+NUM_CLUSTERS = 15
 
 # The cosine similarity threshold above which neighboring clusters
 # get merged together. If this should not be done, set the threshold
 # above 1
-MERGE_THRESHOLD = 0.95
+MERGE_THRESHOLD = 0.8
 
 # The path to the output CSV file to which we copy the input data plus
 # the cluster index for each stereotype
@@ -185,12 +185,12 @@ with open(DATA_INPUT_FILE, encoding="utf-8") as f:
         cluster_col_idx = headers.index(cluster_column_name)
         out_col_idxs.append(cluster_col_idx)
 
-    for row in reader:
-        rows.append(row)
+    for user_entry in reader:
+        rows.append(user_entry)
 
         for stereotype_col_idx in col_idxs:
             # get the next stereotype provided by the current participant
-            stereotype = row[stereotype_col_idx]
+            stereotype = user_entry[stereotype_col_idx]
             # if the stereotype is in the list of forbidden words, ignore it
             if stereotype.strip() in EXCLUDED_STEREOTYPES:
                 continue
@@ -328,6 +328,17 @@ with open(CLUSTERING_OUTPUT_FILE, "w", encoding="utf-8") as f:
 # compute the pairwise similarities between all cluster centers
 S = np.dot(centers_normalized, centers_normalized.T)
 
+# get the indexes of the pair of clusters with the highest similarity
+S_copy = S.copy()
+# Set diagonal elements to a value less than 1.0 to exclude them from argmax
+np.fill_diagonal(S_copy, -1)
+# Get the index of the maximum value closest to 1.0
+max_index = np.unravel_index(np.argmax(S_copy, axis=None), S_copy.shape)
+print(
+    f"Pair of clusters with highest similarity: {max_index} with similarity {S[max_index]}"
+)
+
+
 print(
     f'Writing pairwise cluster center similarities to the file "{CLUSTER_SIMILARITIES_FILE}".'
 )
@@ -338,16 +349,16 @@ print("Completed step 5 of 6.")
 # STEP 6: WRITE CLUSTER INDICES BACK
 print("Preparing step 6 of 6 by writing cluster indices to data")
 
-for row in rows:
+for user_entry in rows:
     for i in range(NUM_STEREOTYPES):
         # get the next stereotype provided by the current participant
-        stereotype = row[col_idxs[i]]
+        stereotype = user_entry[col_idxs[i]]
         cluster_col_idx = stereotype_idx_map.get(stereotype)
         if cluster_col_idx is None:
-            row[out_col_idxs[i]] = ""
+            user_entry[out_col_idxs[i]] = ""
             continue
         k = cluster_idxs[cluster_col_idx]
-        row[out_col_idxs[i]] = k
+        user_entry[out_col_idxs[i]] = k
 
 print(
     f'Starting step 6 of 6: Writing cluster indices for each stereotype to the file "{CLUSTERING_OUTPUT_FILE}"'
@@ -356,7 +367,7 @@ print(
 with open(DATA_OUTPUT_FILE, "w", encoding="utf-8") as f:
     writer = csv.writer(f, delimiter=COL_DELIMITER)
     writer.writerow(headers)
-    for row in rows:
-        writer.writerow(row)
+    for user_entry in rows:
+        writer.writerow(user_entry)
 
 print("Completed step 6 of 6. End of script.")

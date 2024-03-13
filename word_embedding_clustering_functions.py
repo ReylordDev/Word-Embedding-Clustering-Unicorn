@@ -106,8 +106,6 @@ def outlier_detection(
     avg_neighbor_sim = np.mean(
         -np.partition(-S, OUTLIER_K + 1, axis=1)[:, 1 : OUTLIER_K + 1], axis=1
     )
-    # consider the mean and standard deviation of these average cosine similarities
-    # to the neighbors to determine the outlier detection threshold
     outlier_threshold = np.mean(
         avg_neighbor_sim
     ) - OUTLIER_DETECTION_THRESHOLD * np.std(avg_neighbor_sim)
@@ -125,12 +123,12 @@ def outlier_detection(
         plt.show()
 
     # take only the remaining stereotypes
-    remaining = np.where(np.logical_not(outliers))[0]
+    remaining_indexes = np.where(np.logical_not(outliers))[0]
     stereotypes_remaining = []
-    for i in remaining:
+    for i in remaining_indexes:
         stereotypes_remaining.append(stereotypes[i])
 
-    return stereotypes_remaining, embeddings_normalized[remaining, :]
+    return stereotypes_remaining, embeddings_normalized[remaining_indexes, :]
 
 
 def find_number_of_clusters(
@@ -344,8 +342,9 @@ def cluster_and_merge(
             ) / np.sum(sample_weights[in_cluster_k])
 
         # normalize the cluster centers again to unit length
-        Z = np.sqrt(np.sum(centers_new**2, 1))
-        centers_normalized = centers_new / np.expand_dims(Z, 1)
+        centers_normalized = centers_new / np.linalg.norm(
+            centers_new, axis=1, keepdims=True, ord=2
+        )
         centers_normalized = torch.tensor(centers_normalized, dtype=torch.float32)
 
     return cluster_idxs, centers_normalized
