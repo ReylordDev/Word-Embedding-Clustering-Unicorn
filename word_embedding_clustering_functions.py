@@ -47,7 +47,8 @@ import torch
 
 os.environ["OPENBLAS_NUM_THREADS"] = "8"
 os.environ["NUM_THREADS"] = "8"
-os.environ["OMP_NUM_THREADS"] = "8"
+# os.environ["OMP_NUM_THREADS"] = "8"
+os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "8"
 
 import numpy as np  # noqa: E402

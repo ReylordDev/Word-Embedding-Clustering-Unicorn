@@ -170,28 +170,27 @@ with open(DATA_INPUT_FILE, encoding="utf-8") as f:
     # store the indices for all columns that may contain stereotypes
     col_idxs: list[int] = []
 
+    # store the indices for all columns that will contain the cluster indices
+    out_col_idxs: list[int] = []
+
     for i in range(1, NUM_STEREOTYPES + 1):
         # we set up the column name for the i-th stereotype by filling
         # in our %d placeholder
         stereotype_column_name = STEREOTYPE_COLUMN % i
+        cluster_column_name = CLUSTER_COLUMN % i
+
         col_idx = headers.index(stereotype_column_name)
         col_idxs.append(col_idx)
 
-    # store the indices for all columns that will contain the cluster indices
-    out_col_idxs: list[int] = []
-    for i in range(1, NUM_STEREOTYPES + 1):
-        # we set up the column name for the i-th stereotype by filling
-        # in our %d placeholder
-        cluster_column_name = CLUSTER_COLUMN % i
-        col_idx = headers.index(cluster_column_name)
-        out_col_idxs.append(col_idx)
+        cluster_col_idx = headers.index(cluster_column_name)
+        out_col_idxs.append(cluster_col_idx)
 
     for row in reader:
         rows.append(row)
 
-        for col_idx in col_idxs:
+        for stereotype_col_idx in col_idxs:
             # get the next stereotype provided by the current participant
-            stereotype = row[col_idx]
+            stereotype = row[stereotype_col_idx]
             # if the stereotype is in the list of forbidden words, ignore it
             if stereotype.strip() in EXCLUDED_STEREOTYPES:
                 continue
@@ -219,7 +218,7 @@ print("Starting step 2 of 6: Generating word embeddings.")
 
 print(f"Embedding {len(stereotypes)} unique stereotypes. This may take a few seconds.")
 embeddings_normalized = model.encode(
-    stereotypes, normalize_embeddings=True
+    stereotypes, normalize_embeddings=True, convert_to_tensor=True
 )  # shape (no_of_unique_stereotypes, embedding_dim)
 embeddings_normalized = torch.Tensor(embeddings_normalized)
 
@@ -320,9 +319,9 @@ with open(CLUSTERING_OUTPUT_FILE, "w", encoding="utf-8") as f:
         # by the cosine similarity because we may want to label clusters by
         # the most similar stereotypes
         for i in np.argsort(-sim):
-            col_idx = in_cluster_k[i]
-            stereotype = stereotypes[col_idx]
-            k = cluster_idxs[col_idx]
+            cluster_col_idx = in_cluster_k[i]
+            stereotype = stereotypes[cluster_col_idx]
+            k = cluster_idxs[cluster_col_idx]
             s = sim[i].item()
             writer.writerow([stereotype, k, s])
 
@@ -343,11 +342,11 @@ for row in rows:
     for i in range(NUM_STEREOTYPES):
         # get the next stereotype provided by the current participant
         stereotype = row[col_idxs[i]]
-        col_idx = stereotype_idx_map.get(stereotype)
-        if col_idx is None:
+        cluster_col_idx = stereotype_idx_map.get(stereotype)
+        if cluster_col_idx is None:
             row[out_col_idxs[i]] = ""
             continue
-        k = cluster_idxs[col_idx]
+        k = cluster_idxs[cluster_col_idx]
         row[out_col_idxs[i]] = k
 
 print(
