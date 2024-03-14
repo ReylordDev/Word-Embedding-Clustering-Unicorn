@@ -177,13 +177,13 @@ def find_number_of_clusters(
         Ks = list(range(2, MAX_NUM_CLUSTERS + 1))
     elif MAX_NUM_CLUSTERS < 100:
         # for MAX_NUM_CLUSTERS >= 50, we try every fifth value
-        Ks = list(range(2, 51)) + list(range(55, MAX_NUM_CLUSTERS, 5))
+        Ks = list(range(2, 51)) + list(range(55, MAX_NUM_CLUSTERS + 1, 5))
     else:
         # for MAX_NUM_CLUSTERS >= 100, we try every tenth value
         Ks = (
             list(range(2, 51))
             + list(range(55, 101, 5))
-            + list(range(110, MAX_NUM_CLUSTERS, 10))
+            + list(range(110, MAX_NUM_CLUSTERS + 1, 10))
         )
 
     # initialize two lists, one for the silhouette score, one for BIC
