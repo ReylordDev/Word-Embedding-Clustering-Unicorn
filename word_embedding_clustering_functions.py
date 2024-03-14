@@ -192,7 +192,10 @@ def find_number_of_clusters(
     # iterate over all possible K (starting at 2, because K = 1 is trivial)
     for K in tqdm(Ks):
         # initialize a new KMeans clustering with the right K parameter
-        clustering = KMeans(n_clusters=K)
+        clustering = KMeans(
+            n_clusters=K,
+            n_init=10,
+        )
         # fit the clustering to the data, taking into account how often each
         # stereotype was named
         clustering.fit(embeddings_normalized, sample_weight=sample_weights)

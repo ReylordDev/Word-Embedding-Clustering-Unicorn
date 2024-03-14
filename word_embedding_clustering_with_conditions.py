@@ -244,19 +244,10 @@ for condition in condition_to_stereotype_counts_map:
     print(
         f"Embedding {len(stereotypes)} unique stereotypes. This may take a few seconds."
     )
-    embeddings = model.encode(
-        stereotypes
+    embeddings_normalized = model.encode(
+        stereotypes, normalize_embeddings=True
     )  # shape (no_of_unique_stereotypes, embedding_dim)
-
-    # normalize the embeddings
-    embeddings_normalized = embeddings / np.linalg.norm(
-        embeddings, axis=1, keepdims=True, ord=2
-    )
-
-    # # compute the (Euclidean) length of each embedding vector
-    # Z = np.sqrt(np.sum(embeddings**2, 1))
-    # # divide each embedding vector by its length
-    # embeddings_normalized = embeddings / np.expand_dims(Z, 1)
+    embeddings_normalized = np.array(embeddings_normalized)
 
     print(
         f"Filtering out words that are outliers, in the sense that their average cosine similarity to the {OUTLIER_K} nearest neighbors is at least {OUTLIER_DETECTION_THRESHOLD} standard deviations below the average."
