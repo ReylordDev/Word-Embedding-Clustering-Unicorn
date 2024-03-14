@@ -126,7 +126,7 @@ OUTLIER_K = 5
 OUTLIER_DETECTION_THRESHOLD = 1
 
 # the maximum number of clusters to be considered in step 3
-MAX_NUM_CLUSTERS = 500
+MAX_NUM_CLUSTERS = 400
 
 # Whether we want to run the auxiliary functions to help choose the
 # NUM_CLUSTERS parameter
@@ -148,7 +148,7 @@ NUM_CLUSTERS = {
 # The cosine similarity threshold above which neighboring clusters
 # get merged together. If this should not be done, set the threshold
 # above 1
-MERGE_THRESHOLD = 0.85
+MERGE_THRESHOLD = 0.95
 
 # The path to the output CSV file to which we copy the input data plus
 # the cluster index for each stereotype

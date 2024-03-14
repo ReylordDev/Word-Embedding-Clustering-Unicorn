@@ -304,66 +304,43 @@ def cluster_and_merge(
             "Merging similar clusters together until the cosine similarity of all cluster centers is below %g"
             % MERGE_THRESHOLD
         )
-        # Initialize previous_cluster_idxs
-        previous_cluster_idxs = cluster_idxs.copy()
+        # merge the closest clusters using Agglomorative Clustering
+        # until everything is closer than the threshold
+        meta_clustering = AgglomerativeClustering(
+            n_clusters=None,
+            distance_threshold=1.0 - MERGE_THRESHOLD,
+            linkage="complete",
+            metric="cosine",
+        )
+        meta_clustering.fit(np.asarray(centers_normalized))
 
-        # Loop until cluster_idxs didn't change in the previous loop
-        while True:
-            # merge the closest clusters using Agglomorative Clustering
-            # until everything is closer than the threshold
-            meta_clustering = AgglomerativeClustering(
-                n_clusters=None,
-                distance_threshold=1.0 - MERGE_THRESHOLD,
-                linkage="complete",
-                metric="cosine",
-            )
-            meta_clustering.fit(np.asarray(centers_normalized))
+        # print which clusters got merged together
+        for label in np.unique(meta_clustering.labels_):
+            merged = np.where(meta_clustering.labels_ == label)[0]
+            if len(merged) > 1:
+                merged_exemplars = [exemplars[k] for k in merged]
+                print(
+                    "the following clusters got merged together: %s"
+                    % (", ".join(merged_exemplars))
+                )
 
-            # print which clusters got merged together
-            for label in np.unique(meta_clustering.labels_):
-                merged = np.where(meta_clustering.labels_ == label)[0]
-                if len(merged) > 1:
-                    merged_exemplars = [exemplars[k] for k in merged]
-                    print(
-                        "the following clusters got merged together: %s"
-                        % (", ".join(merged_exemplars))
-                    )
+        # override the original k-means result with the merged clusters
+        K_new = len(np.unique(meta_clustering.labels_))
+        for i in range(len(cluster_idxs)):
+            cluster_idxs[i] = meta_clustering.labels_[cluster_idxs[i]]
 
-            # override the original k-means result with the merged clusters
-            K_new = len(np.unique(meta_clustering.labels_))
-            for i in range(len(cluster_idxs)):
-                cluster_idxs[i] = meta_clustering.labels_[cluster_idxs[i]]
+        # re-set the cluster centers to the weighted mean of all their
+        # points
+        centers_new = np.zeros((K_new, centers_normalized.shape[1]))
+        for k in range(K_new):
+            in_cluster_k = cluster_idxs == k
+            centers_new[k, :] = np.dot(
+                sample_weights[in_cluster_k], embeddings_normalized[in_cluster_k, :]
+            ) / np.sum(sample_weights[in_cluster_k])
 
-            # re-set the cluster centers to the weighted mean of all their
-            # points
-            centers_new = np.zeros((K_new, centers_normalized.shape[1]))
-            for k in range(K_new):
-                in_cluster_k = cluster_idxs == k
-                centers_new[k, :] = np.dot(
-                    sample_weights[in_cluster_k], embeddings_normalized[in_cluster_k, :]
-                ) / np.sum(sample_weights[in_cluster_k])
-
-            # normalize the cluster centers again to unit length
-            centers_normalized = centers_new / np.linalg.norm(
-                centers_new, axis=1, keepdims=True, ord=2
-            )
-
-            if np.max(cluster_idxs) == np.max(previous_cluster_idxs):
-                break
-
-            # Update previous_cluster_idxs and previous_centers_normalized
-            previous_cluster_idxs = cluster_idxs.copy()
-            # compute the pairwise similarities between all cluster centers
-            S = np.dot(centers_normalized, centers_normalized.T)
-
-            # get the indexes of the pair of clusters with the highest similarity
-            S_copy = S.copy()
-            # Set diagonal elements to a value less than 1.0 to exclude them from argmax
-            np.fill_diagonal(S_copy, -1)
-            # Get the index of the maximum value closest to 1.0
-            max_index = np.unravel_index(np.argmax(S_copy, axis=None), S_copy.shape)
-            print(
-                f"Pair of clusters with highest similarity: {max_index} with similarity {S[max_index]}"
-            )
+        # normalize the cluster centers again to unit length
+        centers_normalized = centers_new / np.linalg.norm(
+            centers_new, axis=1, keepdims=True, ord=2
+        )
 
     return cluster_idxs, centers_normalized
