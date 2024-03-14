@@ -95,7 +95,7 @@ STEREOTYPE_COLUMN = "Stereotype%d"
 
 # The maximum number of stereotypes each study participant can provide/
 # the number of stereotype columns we check for
-NUM_STEREOTYPES = 3
+NUM_STEREOTYPES = 1
 
 # stereotypes which should be excluded from the analysis.
 EXCLUDED_STEREOTYPES = ["", "white"]
@@ -130,7 +130,7 @@ HELP_CHOOSE_NUM_CLUSTERS = False
 # this parameter.
 # If HELP_CHOOSE_NUM_CLUSTERS is True, this parameter may be overriden
 # by the user when executing the script.
-NUM_CLUSTERS = 20
+NUM_CLUSTERS = 5
 
 # The cosine similarity threshold above which neighboring clusters
 # get merged together. If this should not be done, set the threshold
