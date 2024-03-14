@@ -131,12 +131,12 @@ HELP_CHOOSE_NUM_CLUSTERS = False
 # this parameter.
 # If HELP_CHOOSE_NUM_CLUSTERS is True, this parameter may be overriden
 # by the user when executing the script.
-NUM_CLUSTERS = 10
+NUM_CLUSTERS = 9
 
 # The cosine similarity threshold above which neighboring clusters
 # get merged together. If this should not be done, set the threshold
 # above 1
-MERGE_THRESHOLD = 0.85
+MERGE_THRESHOLD = 0.9
 
 # The path to the output CSV file to which we copy the input data plus
 # the cluster index for each stereotype
@@ -299,7 +299,7 @@ print(
 )
 
 with open(CLUSTERING_OUTPUT_FILE, "w", encoding="utf-8") as f:
-    writer = csv.writer(f, delimiter=COL_DELIMITER)
+    writer = csv.writer(f, delimiter=COL_DELIMITER, lineterminator="\n")
     writer.writerow(["stereotype", "cluster_index", "similarity_to_center"])
     # similarity to center refers to the distance from embedding to the
     # cluster mean which is a measure of how representative
@@ -361,13 +361,12 @@ for user_entry in rows:
         user_entry[out_col_idxs[i]] = k
 
 print(
-    f'Starting step 6 of 6: Writing cluster indices for each stereotype to the file "{CLUSTERING_OUTPUT_FILE}"'
+    f'Starting step 6 of 6: Writing cluster indices for each stereotype to the file "{DATA_OUTPUT_FILE}"'
 )
 
 with open(DATA_OUTPUT_FILE, "w", encoding="utf-8") as f:
-    writer = csv.writer(f, delimiter=COL_DELIMITER)
+    writer = csv.writer(f, delimiter=COL_DELIMITER, lineterminator="\n")
     writer.writerow(headers)
-    for user_entry in rows:
-        writer.writerow(user_entry)
+    writer.writerows(rows)
 
 print("Completed step 6 of 6. End of script.")
