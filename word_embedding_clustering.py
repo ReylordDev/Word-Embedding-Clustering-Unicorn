@@ -83,7 +83,7 @@ from sentence_transformers import SentenceTransformer
 
 # The path to the input CSV file from which we read all the stereotypes
 # that participants answered.
-DATA_INPUT_FILE = "test_input_file_2.csv"
+DATA_INPUT_FILE = "test_input_file.csv"
 
 # The character that is used to delimit columns in the input (and output)
 # file
