@@ -102,13 +102,13 @@ NUM_STEREOTYPES = 3
 EXCLUDED_STEREOTYPES = ["", "white"]
 
 # The language model to be used for word embeddings
-# LANGUAGE_MODEL = "BAAI/bge-large-en-v1.5"
-LANGUAGE_MODEL = "mixedbread-ai/mxbai-embed-large-v1"
+LANGUAGE_MODEL = "BAAI/bge-large-en-v1.5"
+# LANGUAGE_MODEL = "mixedbread-ai/mxbai-embed-large-v1"
 
 # If this is True, the script will show intermediate plots to illustrate
 # the outlier detection and the choice of K. If False, the plots won't be
 # shown.
-SHOW_PLOTS = True
+SHOW_PLOTS = False
 
 # The number of neighbors to be considered for outlier detection
 OUTLIER_K = 3
@@ -131,12 +131,12 @@ HELP_CHOOSE_NUM_CLUSTERS = False
 # this parameter.
 # If HELP_CHOOSE_NUM_CLUSTERS is True, this parameter may be overriden
 # by the user when executing the script.
-NUM_CLUSTERS = 15
+NUM_CLUSTERS = 10
 
 # The cosine similarity threshold above which neighboring clusters
 # get merged together. If this should not be done, set the threshold
 # above 1
-MERGE_THRESHOLD = 0.8
+MERGE_THRESHOLD = 0.85
 
 # The path to the output CSV file to which we copy the input data plus
 # the cluster index for each stereotype
