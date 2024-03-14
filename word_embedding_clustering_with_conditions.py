@@ -520,4 +520,5 @@ if __name__ == "__main__":
     )
     # parser.print_help()
     args = parser.parse_args()
+    print(args)
     main(args)
