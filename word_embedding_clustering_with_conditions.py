@@ -291,6 +291,8 @@ def main(
         if not args.help_choose_num_clusters:
             print("Skipping step 3 of 6.")
             K = args.num_clusters[condition]
+            if isinstance(K, str):
+                K = int(K)
         else:
             # STEP 3: HELP TO CHOOSE THE OPTIMAL NUMBER OF CLUSTERS
             print(
