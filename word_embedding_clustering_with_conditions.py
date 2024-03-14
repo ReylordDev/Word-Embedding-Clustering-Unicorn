@@ -114,7 +114,7 @@ LANGUAGE_MODEL = "BAAI/bge-large-en-v1.5"
 # If this is True, the script will show intermediate plots to illustrate
 # the outlier detection and the choice of K. If False, the plots won't be
 # shown.
-SHOW_PLOTS = True
+SHOW_PLOTS = False
 
 # The number of neighbors to be considered for outlier detection
 OUTLIER_K = 5

@@ -277,7 +277,7 @@ def cluster_and_merge(
     """
 
     # initialize a new KMeans clustering with the right K parameter
-    clustering = KMeans(n_clusters=K)
+    clustering = KMeans(n_clusters=K, n_init=10)
     # fit the clustering to the data, taking into account how often each
     # stereotype was named
     clustering.fit(embeddings_normalized, sample_weight=sample_weights)
