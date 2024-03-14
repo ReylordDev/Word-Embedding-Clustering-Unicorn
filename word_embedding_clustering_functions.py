@@ -191,6 +191,7 @@ def find_number_of_clusters(
     bics = []
     # iterate over all possible K (starting at 2, because K = 1 is trivial)
     for K in tqdm(Ks):
+        print(f"Computing K = {K}")
         # initialize a new KMeans clustering with the right K parameter
         clustering = KMeans(
             n_clusters=K,
