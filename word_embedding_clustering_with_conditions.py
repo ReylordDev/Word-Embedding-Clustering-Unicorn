@@ -478,14 +478,15 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--help_choose_num_clusters",
-        type=bool,
+        type=(lambda x: x.lower() in ["true", "1", "yes"]),
         default=HELP_CHOOSE_NUM_CLUSTERS,
         help="Whether we want to run the auxiliary functions to help choose the NUM_CLUSTERS parameter",
     )
     parser.add_argument(
         "--num_clusters",
-        type=list[str],
-        default=[f"{v}" for v in NUM_CLUSTERS.values()],
+        type=(lambda x: dict([y.split("=") for y in x.split(",")])),
+        # 0=250, 1=250
+        default=NUM_CLUSTERS,
         help="The number of clusters we use for clustering in step 4, defined separately for each condition.",
     )
     parser.add_argument(
