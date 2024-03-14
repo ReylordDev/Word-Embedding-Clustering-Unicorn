@@ -83,7 +83,7 @@ from sentence_transformers import SentenceTransformer
 
 # The path to the input CSV file from which we read all the stereotypes
 # that participants answered.
-DATA_INPUT_FILE = "test_input_file.csv"
+DATA_INPUT_FILE = "test_input_file_4.csv"
 
 # The character that is used to delimit columns in the input (and output)
 # file
@@ -95,7 +95,7 @@ STEREOTYPE_COLUMN = "Stereotype%d"
 
 # The maximum number of stereotypes each study participant can provide/
 # the number of stereotype columns we check for
-NUM_STEREOTYPES = 1
+NUM_STEREOTYPES_PER_ROW = 10
 
 # stereotypes which should be excluded from the analysis.
 EXCLUDED_STEREOTYPES = ["", "white"]
@@ -119,11 +119,11 @@ OUTLIER_K = 3
 OUTLIER_DETECTION_THRESHOLD = 3
 
 # the maximum number of clusters to be considered in step 3
-MAX_NUM_CLUSTERS = 30
+MAX_NUM_CLUSTERS = 300
 
 # Whether we want to run the auxiliary functions to help choose the
 # NUM_CLUSTERS parameter
-HELP_CHOOSE_NUM_CLUSTERS = False
+HELP_CHOOSE_NUM_CLUSTERS = True
 
 # The number of clusters we use for clustering in step 4.
 # NOTE: This script also contains auxiliary functions to help with choosing
@@ -135,7 +135,7 @@ NUM_CLUSTERS = 5
 # The cosine similarity threshold above which neighboring clusters
 # get merged together. If this should not be done, set the threshold
 # above 1
-MERGE_THRESHOLD = 0.9
+MERGE_THRESHOLD = 0.95
 
 # The path to the output CSV file to which we copy the input data plus
 # the cluster index for each stereotype
@@ -144,6 +144,7 @@ DATA_OUTPUT_FILE = "test_output_file.csv"
 # The name of the columns to which we write the cluster index after
 # the analysis is complete. The %d is a placeholder.
 CLUSTER_COLUMN = "Stereotype%d_code_match"
+CLUSTER_COLUMN = "Stereotype%d_cluster"
 
 # The path to the output CSV file to which we write the clustering of
 # all unique words.
@@ -172,7 +173,7 @@ with open(DATA_INPUT_FILE, encoding="utf-8") as f:
     # store the indices for all columns that will contain the cluster indices
     out_col_idxs: list[int] = []
 
-    for i in range(1, NUM_STEREOTYPES + 1):
+    for i in range(1, NUM_STEREOTYPES_PER_ROW + 1):
         # we set up the column name for the i-th stereotype by filling
         # in our %d placeholder
         stereotype_column_name = STEREOTYPE_COLUMN % i
@@ -349,7 +350,7 @@ print("Completed step 5 of 6.")
 print("Preparing step 6 of 6 by writing cluster indices to data")
 
 for user_entry in rows:
-    for i in range(NUM_STEREOTYPES):
+    for i in range(NUM_STEREOTYPES_PER_ROW):
         # get the next stereotype provided by the current participant
         stereotype = user_entry[col_idxs[i]]
         cluster_col_idx = stereotype_idx_map.get(stereotype)

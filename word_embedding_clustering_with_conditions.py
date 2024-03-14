@@ -87,7 +87,7 @@ from sentence_transformers import SentenceTransformer
 
 # The path to the input CSV file from which we read all the stereotypes
 # that participants answered.
-DATA_INPUT_FILE = "white groups study 1_all_merged_2.7.23.csv"
+DATA_INPUT_FILE = "test_input_file_4.csv"
 
 # The character that is used to delimit columns in the input (and output)
 # file
@@ -151,11 +151,11 @@ MERGE_THRESHOLD = 0.85
 
 # The path to the output CSV file to which we copy the input data plus
 # the cluster index for each stereotype
-DATA_OUTPUT_FILE = "white groups study 1_all_merged_2.7.23_clustered.csv"
+DATA_OUTPUT_FILE = "test_output_file_condition.csv"
 
 # The name of the columns to which we write the cluster index after
 # the analysis is complete. The %d is a placeholder.
-CLUSTER_COLUMN = "Stereotype%d_code_match"
+CLUSTER_COLUMN = "Stereotype%d_cluster"
 
 # The path to the output CSV file to which we write the clustering of
 # all unique words. The %s is a placeholder for the experimental condition.
