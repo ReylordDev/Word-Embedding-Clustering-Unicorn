@@ -126,7 +126,7 @@ OUTLIER_K = 5
 OUTLIER_DETECTION_THRESHOLD = 1
 
 # the maximum number of clusters to be considered in step 3
-MAX_NUM_CLUSTERS = 400
+MAX_NUM_CLUSTERS = 250
 
 # Whether we want to run the auxiliary functions to help choose the
 # NUM_CLUSTERS parameter
