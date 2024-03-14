@@ -76,6 +76,7 @@ __version__ = "0.9.0"
 __maintainer__ = "Benjamin Paaßen"
 __email__ = "bpaassen@techfak.uni-bielefeld.de"
 
+import torch
 import word_embedding_clustering_functions
 from collections import Counter
 import csv
@@ -224,7 +225,9 @@ print(f"Completed step 1. Read {len(rows)} responses.")
 print(
     f"Preparing step 2 of 6 by initializing the language model {LANGUAGE_MODEL}. This may take a while when this script is run the first time."
 )
-model = SentenceTransformer(LANGUAGE_MODEL)
+model = SentenceTransformer(
+    LANGUAGE_MODEL, device="cuda" if torch.cuda.is_available() else "cpu"
+)
 
 # THE REMAINDER OF THIS ANALYSIS, WE WILL DO SEPARATELY FOR EACH CONDITION
 for condition in condition_to_stereotype_counts_map:
@@ -245,7 +248,7 @@ for condition in condition_to_stereotype_counts_map:
         f"Embedding {len(stereotypes)} unique stereotypes. This may take a few seconds."
     )
     embeddings_normalized = model.encode(
-        stereotypes, normalize_embeddings=True
+        stereotypes, normalize_embeddings=True, convert_to_numpy=True
     )  # shape (no_of_unique_stereotypes, embedding_dim)
     embeddings_normalized = np.array(embeddings_normalized)
 
