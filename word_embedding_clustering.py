@@ -72,7 +72,6 @@ __maintainer__ = "Benjamin Paaßen"
 __email__ = "bpaassen@techfak.uni-bielefeld.de"
 
 
-import torch
 import word_embedding_clustering_functions
 from collections import Counter
 import csv
@@ -120,7 +119,7 @@ OUTLIER_K = 3
 OUTLIER_DETECTION_THRESHOLD = 3
 
 # the maximum number of clusters to be considered in step 3
-MAX_NUM_CLUSTERS = 15
+MAX_NUM_CLUSTERS = 30
 
 # Whether we want to run the auxiliary functions to help choose the
 # NUM_CLUSTERS parameter
@@ -131,7 +130,7 @@ HELP_CHOOSE_NUM_CLUSTERS = False
 # this parameter.
 # If HELP_CHOOSE_NUM_CLUSTERS is True, this parameter may be overriden
 # by the user when executing the script.
-NUM_CLUSTERS = 9
+NUM_CLUSTERS = 20
 
 # The cosine similarity threshold above which neighboring clusters
 # get merged together. If this should not be done, set the threshold
@@ -218,9 +217,9 @@ print("Starting step 2 of 6: Generating word embeddings.")
 
 print(f"Embedding {len(stereotypes)} unique stereotypes. This may take a few seconds.")
 embeddings_normalized = model.encode(
-    stereotypes, normalize_embeddings=True, convert_to_tensor=True
+    stereotypes, normalize_embeddings=True, convert_to_numpy=True
 )  # shape (no_of_unique_stereotypes, embedding_dim)
-embeddings_normalized = torch.Tensor(embeddings_normalized)
+embeddings_normalized = np.array(embeddings_normalized)
 
 print(
     f"Filtering out words that are outliers, in the sense that their average cosine similarity to the {OUTLIER_K} nearest neighbors is at least {OUTLIER_DETECTION_THRESHOLD} standard deviations below the average."

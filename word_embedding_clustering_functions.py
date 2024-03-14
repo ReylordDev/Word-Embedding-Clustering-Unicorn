@@ -42,9 +42,6 @@ __email__ = "bpaassen@techfak.uni-bielefeld.de"
 import os
 from typing import Optional
 
-from torch import Tensor
-import torch
-
 os.environ["OPENBLAS_NUM_THREADS"] = "8"
 os.environ["NUM_THREADS"] = "8"
 # os.environ["OMP_NUM_THREADS"] = "8"
@@ -61,11 +58,11 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 def outlier_detection(
     stereotypes: list[str],
-    embeddings_normalized: Tensor,
+    embeddings_normalized: np.ndarray,
     OUTLIER_K=5,
     OUTLIER_DETECTION_THRESHOLD=1,
     SHOW_PLOTS=False,
-) -> tuple[list[str], Tensor]:
+) -> tuple[list[str], np.ndarray]:
     """Excludes stereotypes from the given list which have lower average
     cosine similarity to their OUTLIER_K nearest neighbors than
     OUTLIER_DETECTION_THRESHOLD times the standard deviation below the mean.
@@ -132,7 +129,7 @@ def outlier_detection(
 
 
 def find_number_of_clusters(
-    embeddings_normalized: Tensor,
+    embeddings_normalized: np.ndarray,
     MAX_NUM_CLUSTERS: int,
     sample_weights: Optional[np.ndarray] = None,
     SHOW_PLOTS=False,
@@ -238,12 +235,12 @@ def find_number_of_clusters(
 
 def cluster_and_merge(
     stereotypes: list[str],
-    embeddings_normalized: Tensor,
+    embeddings_normalized: np.ndarray,
     K: int,
     sample_weights: Optional[np.ndarray] = None,
     MERGE_THRESHOLD=1.0,
     SHOW_PLOTS=False,
-) -> tuple[np.ndarray, Tensor]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Clusters the data using KMeans and merges closeby clusters using
     complete linkage clustering on the cosine similarity.
 
@@ -287,7 +284,6 @@ def cluster_and_merge(
     centers_normalized = clustering.cluster_centers_ / np.linalg.norm(
         clustering.cluster_centers_, axis=1, keepdims=True, ord=2
     )
-    centers_normalized = torch.tensor(centers_normalized)
 
     if sample_weights is None:
         sample_weights = np.ones(len(stereotypes))
@@ -348,7 +344,6 @@ def cluster_and_merge(
             centers_normalized = centers_new / np.linalg.norm(
                 centers_new, axis=1, keepdims=True, ord=2
             )
-            centers_normalized = torch.tensor(centers_normalized, dtype=torch.float32)
 
             if np.max(cluster_idxs) == np.max(previous_cluster_idxs):
                 break
