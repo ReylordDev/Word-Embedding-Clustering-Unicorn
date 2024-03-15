@@ -268,7 +268,7 @@ def main(
                 args.outlier_detection_threshold,
                 SHOW_PLOTS=args.show_plots,
             )
-        )
+        )  # shape (no_of_unique_stereotypes, embedding_dim)
 
         print(
             f"Completed outlier detection. {len(stereotypes)} unique stereotypes are remaining."
