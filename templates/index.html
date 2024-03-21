@@ -22,11 +22,14 @@
     </h1>
     <div class="flex">
       <div id="dropZone">
-        <form id="uploadForm"
-        action="/"
-        method="post"
-        enctype="multipart/form-data">
-          <input type="file" id="fileInput" name="file"/>
+        <form
+          id="uploadForm"
+          action="/api/upload"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <input type="file" id="fileInput" name="file" />
+        </form>
       </div>
       <div
         id="File-Parameters"
@@ -51,7 +54,7 @@
     <div>Algorithm Settings</div>
     <div>
       <div id="Advanced-Settings">Advanced Settings</div>
-      <button id="Run-Clustering">Run Clustering</button>
+      <button id="runClusteringButton">Run Clustering</button>
     </div>
   </body>
 </html>
