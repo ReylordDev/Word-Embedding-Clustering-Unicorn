@@ -11,6 +11,7 @@
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
     </style>
+    <script src="{{url_for('static',filename='src/index.js')}}"></script>
     <title>Word Embedding Clustering</title>
   </head>
   <body class="flex flex-col">
@@ -20,7 +21,13 @@
       based on LLM <span class="text-secondary">Embeddings</span>
     </h1>
     <div class="flex">
-      <div id="File-Upload">File Upload</div>
+      <div id="dropZone">
+        <form id="uploadForm"
+        action="/"
+        method="post"
+        enctype="multipart/form-data">
+          <input type="file" id="fileInput" name="file"/>
+      </div>
       <div
         id="File-Parameters"
         class="flex flex-col justify-evenly items-start"
