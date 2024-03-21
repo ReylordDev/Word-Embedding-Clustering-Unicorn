@@ -10,3 +10,6 @@ env
 *.log
 .git
 .venv
+*.csv
+word_embedding_clustering*
+outputs/*
