@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{url_for('static',filename='dist/output.css')}}"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
+    </style>
+    <title>Word Embedding Clustering</title>
+  </head>
+  <body class="flex flex-col">
+    <h1>
+      <span class="text-secondary">Word</span>
+      <span class="text-primary">Clustering</span> <br />
+      based on LLM <span class="text-secondary">Embeddings</span>
+    </h1>
+    <div class="flex">
+      <div id="File-Upload">File Upload</div>
+      <div
+        id="File-Parameters"
+        class="flex flex-col justify-evenly items-start"
+      >
+        <h5>File Parameter Settings</h5>
+        <div id="Column-Delimiter">
+          <div>
+            <h5>Column delimiter symbol</h5>
+            <small
+              >Leave empty if you want to infer the delimiter
+              automatically</small
+            >
+          </div>
+          <div>
+            <input type="text" id="Delimiter" placeholder="Delimiter symbol" />
+            <div id="Question-Mark">?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>Algorithm Settings</div>
+    <div>
+      <div id="Advanced-Settings">Advanced Settings</div>
+      <button id="Run-Clustering">Run Clustering</button>
+    </div>
+  </body>
+</html>
