@@ -1,7 +1,5 @@
 FROM python:3.9
 
-COPY .cache /~/.cache
-
 WORKDIR /app
 
 COPY requirements.txt .

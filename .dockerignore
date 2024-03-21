@@ -1,0 +1,11 @@
+.vscode
+tailwindcss.exe
+colab.ipynb
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+*.log
+.git

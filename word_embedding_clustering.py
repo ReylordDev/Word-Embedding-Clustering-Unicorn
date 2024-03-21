@@ -166,7 +166,6 @@ stereotype_counts: Counter[str] = Counter()
 with open(DATA_INPUT_FILE, encoding="utf-8") as f:
     reader = csv.reader(f, delimiter=COL_DELIMITER)
     headers = reader.__next__()
-
     # store the indices for all columns that may contain stereotypes
     col_idxs: list[int] = []
 
@@ -202,7 +201,7 @@ print(f"Completed step 1. Read {len(rows)} responses.")
 print(
     f"Preparing step 2 of 6 by initializing the language model {LANGUAGE_MODEL}. This may take a while when this script is run the first time."
 )
-model = SentenceTransformer(LANGUAGE_MODEL)
+model = SentenceTransformer(LANGUAGE_MODEL, cache_folder=".cache/huggingface/hub")
 
 no_of_unique_stereotypes = len(stereotype_counts)
 no_of_stereotypes = sum(stereotype_counts.values())
