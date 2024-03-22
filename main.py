@@ -385,6 +385,8 @@ def main(
     )
     logging.info(f"Shape of embeddings: {norm_embeddings_no_outliers.shape}")
 
+    outliers = set(words) - set(words_no_outliers)
+
     # a list of how often each word was named
     sample_weights = []
     for word in words_no_outliers:
@@ -465,6 +467,8 @@ def main(
         "seed": seed,
         "execution_time": execution_time,
         "language_model": LANGUAGE_MODEL,
+        "num_outliers": len(outliers),
+        "outliers": list(outliers),
     }
     with open(STATS_FILE_PATH, "w", encoding="utf-8") as f:
         json.dump(stats, f, indent=4)
