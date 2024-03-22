@@ -6,3 +6,4 @@ __pycache__
 tailwindcss.exe
 .cache
 uploads/*
+.env

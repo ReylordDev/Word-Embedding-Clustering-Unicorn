@@ -1,25 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for
 from main import main
+import os
 
 app = Flask(__name__)
+
+PORT = int(os.getenv("PORT", 5100))
 
 
 @app.route("/")
 def index():
     return render_template("index.html")
-
-
-# @app.route("/api/upload", methods=["POST"])
-# def upload():
-#     if "file" not in request.files:
-#         return "No file uploaded", 400
-#     file = request.files["file"]
-#     if file.filename == "" or file.filename is None:
-#         return "No file selected", 400
-#     if file:
-#         file.save(f"uploads/input{file.filename[-4:]}")
-#         return redirect(url_for("index"))
-#     return "Error", 500
 
 
 def save_file(request):
@@ -72,4 +62,4 @@ def run_clustering():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5100)
+    app.run(host="0.0.0.0", port=PORT)
