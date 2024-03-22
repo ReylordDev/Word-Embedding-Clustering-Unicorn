@@ -42,7 +42,7 @@ def run_clustering():
     num_words_per_row = request.form.get(
         "responses_per_participant", default=1, type=int
     )
-    automatic_k = request.form.get("auto_number_of_clusters", default=False, type=bool)
+    automatic_k = request.form.get("auto_number_clusters", default=False, type=bool)
     max_num_clusters = request.form.get("max_number_of_clusters", default=10, type=int)
     seed = request.form.get("seed", default=0, type=int)
     num_clusters = request.form.get("number_of_clusters", default=5, type=int)

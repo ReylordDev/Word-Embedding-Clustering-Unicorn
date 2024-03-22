@@ -106,6 +106,10 @@ def find_number_of_clusters(
     sample_weights: Optional[np.ndarray] = None,
     seed: Optional[int] = None,
 ) -> int:
+    max_num_clusters = min(
+        max_num_clusters, len(embeddings_normalized) - 1
+    )  # Prevent more clusters than words
+
     # set up the list of Ks we want to try
     if max_num_clusters < 50:
         # for max_num_clusters < 50, we try every possible value
@@ -334,6 +338,7 @@ def main(
     K: int = 5,
     merge_threshold: float = 1.0,
 ):
+    logger.info("Starting clustering")
     start_time = time.time()
     # read the input file
     rows, word_counts, headers, col_idxs, out_col_idxs = read_input_file(
@@ -425,8 +430,8 @@ def main(
         headers,
         col_delimiter,
     )
-    print(f"Cluster indices written to {INPUT_FILE_PATH}")
-    logging.info(f"Cluster indices written to {INPUT_FILE_PATH}")
+    print(f"Cluster indices written to {OUTPUT_FILE_PATH}")
+    logging.info(f"Cluster indices written to {OUTPUT_FILE_PATH}")
 
     execution_time = time.time() - start_time
 

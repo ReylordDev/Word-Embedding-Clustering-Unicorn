@@ -7,3 +7,4 @@ tailwindcss.exe
 .cache
 uploads/*
 .env
+static/outputs/*
