@@ -28,11 +28,19 @@ def save_file(request):
 
 @app.route("/api/run_clustering", methods=["POST"])
 def run_clustering():
+    file_name = ""
     try:
         file_name = save_file(request)
     except ValueError as e:
         return str(e)
     col_delimiter = request.form.get("col_delimiter", default=",")
+    if col_delimiter == "":
+        if file_name[-4:] == ".csv":
+            col_delimiter = ","
+        elif file_name[-4:] == ".tsv":
+            col_delimiter = "\t"
+        else:
+            col_delimiter = ","
     word_column_template = request.form.get("word_column", default="word%d").replace(
         "1", "%d"
     )
@@ -48,10 +56,10 @@ def run_clustering():
     num_clusters = request.form.get("number_of_clusters", default=5, type=int)
     excluded_words = []
     outlier_k = 5
-    outlier_detection_threshold = 1
-    merge_threshold = 0.8
+    outlier_detection_threshold = 2
+    merge_threshold = 0.9
 
-    execution_time = main(
+    stats = main(
         col_delimiter=col_delimiter,
         num_words_per_row=num_words_per_row,
         word_column_template=word_column_template,
@@ -65,7 +73,7 @@ def run_clustering():
         K=num_clusters,
         merge_threshold=merge_threshold,
     )
-    return redirect(url_for("results", execution_time=execution_time))
+    return redirect(url_for("results", execution_time=stats.get("execution_time")))
 
 
 @app.route("/results")

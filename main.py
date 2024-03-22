@@ -1,5 +1,6 @@
 from collections import Counter
 import csv
+import json
 from typing import Optional
 import numpy as np
 from sentence_transformers import SentenceTransformer
@@ -9,11 +10,16 @@ from tqdm import tqdm
 import time
 import logging
 
-INPUT_FILE_PATH = "uploads/input.csv"
+UPLOADS_DIR = "uploads"
+OUTPUTS_DIR = "static/outputs"
+
+
+INPUT_FILE_PATH = f"{UPLOADS_DIR}/input.csv"
 CACHE_FOLDER = ".cache/huggingface/hub"
-CLUSTERING_OUTPUT_FILE = "static/outputs/clustering_output.csv"
-PAIRWISE_SIMILARITIES_OUTPUT_FILE = "static/outputs/pairwise_similarities.csv"
-OUTPUT_FILE_PATH = "static/outputs/output.csv"
+CLUSTERING_OUTPUT_FILE = f"{OUTPUTS_DIR}/clustering_output.csv"
+PAIRWISE_SIMILARITIES_OUTPUT_FILE = f"{OUTPUTS_DIR}/pairwise_similarities.csv"
+OUTPUT_FILE_PATH = f"{OUTPUTS_DIR}/output.csv"
+STATS_FILE_PATH = f"{OUTPUTS_DIR}/stats.json"
 LANGUAGE_MODEL = "BAAI/bge-large-en-v1.5"
 
 logging.basicConfig(
@@ -359,53 +365,62 @@ def main(
     words = list(word_counts.keys())
 
     # embed the words using the language model
+    logger.info("Embedding words")
     model = SentenceTransformer(LANGUAGE_MODEL, cache_folder=CACHE_FOLDER)
     norm_embeddings = model.encode(
         words, normalize_embeddings=True, convert_to_numpy=True
     )  # shape (no_of_unique_words, embedding_dim)
     norm_embeddings = np.array(norm_embeddings)  # Type casting (only for IDE)
-    print(f"Shape of embeddings: {norm_embeddings.shape}")
-    logging.info(f"Shape of embeddings: {norm_embeddings.shape}")
+    logger.info("Embedding complete")
 
     # remove outliers
-    words, norm_embeddings = outlier_detection(
+    words_no_outliers, norm_embeddings_no_outliers = outlier_detection(
         words, norm_embeddings, outlier_k, outlier_detection_threshold
     )
-    print(f"Number of remaining words after outlier detection: {len(words)}")
-    logging.info(f"Number of remaining words after outlier detection: {len(words)}")
+    print(
+        f"Number of remaining words after outlier detection: {len(words_no_outliers)}"
+    )
+    logging.info(
+        f"Number of remaining words after outlier detection: {len(words_no_outliers)}"
+    )
+    logging.info(f"Shape of embeddings: {norm_embeddings_no_outliers.shape}")
 
     # a list of how often each word was named
     sample_weights = []
-    for word in words:
+    for word in words_no_outliers:
         sample_weights.append(word_counts[word])
     sample_weights = np.array(sample_weights)
 
     # find the number of clusters
     if automatic_k:
         K = find_number_of_clusters(
-            norm_embeddings, max_num_clusters, sample_weights, seed
+            norm_embeddings_no_outliers, max_num_clusters, sample_weights, seed
         )
         print(f"Automatically determined number of clusters: {K}")
         logging.info(f"Automatically determined number of clusters: {K}")
 
     # cluster the embeddings
     cluster_idxs, centers_normalized = cluster_and_merge(
-        words, norm_embeddings, K, sample_weights, merge_threshold, seed
+        words_no_outliers,
+        norm_embeddings_no_outliers,
+        K,
+        sample_weights,
+        merge_threshold,
+        seed,
     )
     K_new = centers_normalized.shape[0]
     if K_new < K:
         print(f"Reduced number of clusters by merging to {K_new}")
         logging.info(f"Reduced number of clusters by merging to {K_new}")
-    K = K_new
 
     # output the clustering results
     output_clustering_results(
         CLUSTERING_OUTPUT_FILE,
-        K,
+        K_new,
         cluster_idxs,
-        norm_embeddings,
+        norm_embeddings_no_outliers,
         centers_normalized,
-        words,
+        words_no_outliers,
         col_delimiter,
     )
     print(f"Clustering written to {CLUSTERING_OUTPUT_FILE}")
@@ -424,7 +439,7 @@ def main(
         num_words_per_row,
         col_idxs,
         out_col_idxs,
-        words,
+        words_no_outliers,
         cluster_idxs,
         rows,
         headers,
@@ -435,7 +450,27 @@ def main(
 
     execution_time = time.time() - start_time
 
-    return execution_time
+    stats = {
+        "num_rows": len(rows),
+        "num_words_initial": word_count,
+        "num_unique_words_initial": unique_word_count,
+        "num_words_post_outlier_detection": len(words_no_outliers),
+        "num_clusters_initial": K,
+        "num_clusters_post_merging": K_new,
+        "automatic_k": automatic_k,
+        "max_num_clusters": max_num_clusters,
+        "outlier_k": outlier_k,
+        "outlier_detection_threshold": outlier_detection_threshold,
+        "merge_threshold": merge_threshold,
+        "seed": seed,
+        "execution_time": execution_time,
+        "language_model": LANGUAGE_MODEL,
+    }
+    with open(STATS_FILE_PATH, "w", encoding="utf-8") as f:
+        json.dump(stats, f, indent=4)
+        logger.info(f"Stats written to {STATS_FILE_PATH}")
+
+    return stats
 
 
 if __name__ == "__main__":
