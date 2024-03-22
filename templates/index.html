@@ -20,41 +20,166 @@
       <span class="text-primary">Clustering</span> <br />
       based on LLM <span class="text-secondary">Embeddings</span>
     </h1>
-    <div class="flex">
-      <div id="dropZone">
-        <form
-          id="uploadForm"
-          action="/api/upload"
-          method="post"
-          enctype="multipart/form-data"
+    <form
+      id="parameterForm"
+      action="/api/run_clustering"
+      method="post"
+      class="bg-red-500"
+      enctype="multipart/form-data"
+    >
+      <div class="flex bg-blue-300 p-4">
+        <div id="dropZone" class="bg-zinc-400">
+          <form
+            id="uploadForm"
+            action="/api/upload"
+            method="post"
+            enctype="multipart/form-data"
+          >
+            <input type="file" id="fileInput" name="file" form="parameterForm"/>
+          </form>
+        </div>
+        <div
+          id="File-Parameters"
+          class="flex flex-col justify-evenly items-start bg-green-400 p-4"
         >
-          <input type="file" id="fileInput" name="file" />
-        </form>
-      </div>
-      <div
-        id="File-Parameters"
-        class="flex flex-col justify-evenly items-start"
-      >
-        <h5>File Parameter Settings</h5>
-        <div id="Column-Delimiter">
-          <div>
-            <h5>Column delimiter symbol</h5>
-            <small
-              >Leave empty if you want to infer the delimiter
-              automatically</small
-            >
+          <h4>File Parameter Settings</h4>
+          <div class="bg-pink-300 flex">
+            <div class="flex flex-col">
+              <h5>Column delimiter symbol</h5>
+              <small
+                >Leave empty if you want to infer the delimiter
+                automatically</small
+              >
+            </div>
+            <div class="flex">
+              <input
+                type="text"
+                id="Delimiter"
+                name="col_delimiter"
+                placeholder="Delimiter symbol"
+                form="parameterForm"
+              />
+              <div id="Question-Mark">?</div>
+            </div>
           </div>
-          <div>
-            <input type="text" id="Delimiter" placeholder="Delimiter symbol" />
-            <div id="Question-Mark">?</div>
+          <div class="flex gap-8 bg-rose-500">
+            <h5>Word Column Name</h5>
+            <div class="flex gap-4">
+              <input
+                type="text"
+                id="wordColumn"
+                name="word_column"
+                placeholder="i.e. word1"
+                class="text-center"
+                form="parameterForm"
+              />
+              <div id="Question-Mark">?</div>
+            </div>
+          </div>
+          <div class="flex gap-8 bg-red-600">
+            <h5>Cluster Column Name</h5>
+            <div class="flex gap-4">
+              <input
+                type="text"
+                id="clusterColumn"
+                name="cluster_column"
+                placeholder="i.e. word1_cluster"
+                class="text-center"
+                form="parameterForm"
+              />
+              <div id="Question-Mark">?</div>
+            </div>
+          </div>
+          <div class="flex gap-8 bg-red-200">
+            <h5>Number of Responses Per Participant</h5>
+            <div class="flex gap-4">
+              <input
+                type="text"
+                id="responsesPerParticipant"
+                name="responses_per_participant"
+                placeholder="i.e. 10"
+                class="text-center"
+                form="parameterForm"
+              />
+              <div id="Question-Mark">?</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div>Algorithm Settings</div>
-    <div>
-      <div id="Advanced-Settings">Advanced Settings</div>
-      <button id="runClusteringButton">Run Clustering</button>
-    </div>
+      <div class="bg-blue-950 p-4">
+        <h4>Algorithm Settings</h4>
+        <div class="flex flex-col">
+          <div class="flex gap-8 bg-red-200">
+            <h5>Automatically Choose Number of Clusters</h5>
+            <div class="flex gap-4">
+              <input type="checkbox" id="autoNumberClusters" name="auto_number_clusters" value="true" form="parameterForm"/>
+              <div id="Question-Mark">?</div>
+            </div>
+          </div>
+          <div class="flex gap-8 bg-red-400">
+            <h5>Max possible number of clusters</h5>
+            <div class="flex gap-4">
+              <input
+                type="text"
+                id="maxClusters"
+                name="max_number_of_clusters"
+                placeholder="i.e. 10"
+                class="text-center"
+                form="parameterForm"
+              />
+              <div id="Question-Mark">?</div>
+            </div>
+          </div>
+          <div class="flex gap-8 bg-violet-400">
+            <h5>Number of Clusters</h5>
+            <div class="flex gap-4">
+              <input
+                type="text"
+                id="numberOfClusters"
+                name="number_of_clusters"
+                placeholder="i.e. 10"
+                class="text-center"
+                form="parameterForm"
+              />
+              <div id="Question-Mark">?</div>
+            </div>
+          </div>
+          <div class="flex gap-8 bg-rose-300">
+            <h5>Excluded Words</h5>
+            <form class="flex gap-4">
+              <input
+                type="text"
+                id="excludedWords"
+                placeholder="enter word"
+                class="text-center"
+              />
+              <button id="addExcludedWord">Add</button>
+              <div id="Question-Mark">?</div>
+            </form>
+          </div>
+          <div class="flex gap-8 bg-rose-500">
+            <h5>Deterministic Seed</h5>
+            <div class="flex gap-4">
+              <input
+                type="text"
+                id="seed"
+                name="seed"
+                placeholder="i.e. 42"
+                class="text-center"
+                form="parameterForm"
+              />
+              <div id="Question-Mark">?</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="flex flex-row justify-between p-4 bg-amber-500">
+        <div id="Advanced-Settings">Advanced Settings</div>
+        <button id="runClusteringButton" type="submit"
+        form="parameterForm"
+        >Run Clustering</button>
+      </div>
+    </form>
   </body>
 </html>

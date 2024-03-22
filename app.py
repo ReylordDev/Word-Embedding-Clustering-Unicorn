@@ -9,8 +9,20 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/api/upload", methods=["POST"])
-def upload():
+# @app.route("/api/upload", methods=["POST"])
+# def upload():
+#     if "file" not in request.files:
+#         return "No file uploaded", 400
+#     file = request.files["file"]
+#     if file.filename == "" or file.filename is None:
+#         return "No file selected", 400
+#     if file:
+#         file.save(f"uploads/input{file.filename[-4:]}")
+#         return redirect(url_for("index"))
+#     return "Error", 500
+
+
+def save_file(request):
     if "file" not in request.files:
         return "No file uploaded", 400
     file = request.files["file"]
@@ -18,25 +30,30 @@ def upload():
         return "No file selected", 400
     if file:
         file.save(f"uploads/input{file.filename[-4:]}")
-        return redirect(url_for("index"))
-    return "Error", 500
 
 
 @app.route("/api/run_clustering", methods=["POST"])
-def run_clustering(
-    col_delimiter=",",
-    num_words_per_row=10,
-    word_column_template="Stereotype%d",
-    cluster_column_template="Stereotype%d_cluster",
-    excluded_words=[],
-    outlier_k=3,
-    outlier_detection_threshold=3,
-    automatic_k=False,
-    max_num_clusters=10,
-    seed=42,
-    num_clusters=50,
-    merge_threshold=0.8,
-):
+def run_clustering():
+    save_file(request)
+    col_delimiter = request.form.get("col_delimiter", default=",")
+    word_column_template = request.form.get("word_column", default="word%d").replace(
+        "1", "%d"
+    )
+    cluster_column_template = request.form.get(
+        "cluster_column", default="word%d_cluster"
+    ).replace("1", "%d")
+    num_words_per_row = request.form.get(
+        "responses_per_participant", default=1, type=int
+    )
+    automatic_k = request.form.get("auto_number_of_clusters", default=False, type=bool)
+    max_num_clusters = request.form.get("max_number_of_clusters", default=10, type=int)
+    seed = request.form.get("seed", default=0, type=int)
+    num_clusters = request.form.get("number_of_clusters", default=5, type=int)
+    excluded_words = []
+    outlier_k = 5
+    outlier_detection_threshold = 1
+    merge_threshold = 0.8
+
     main(
         col_delimiter=col_delimiter,
         num_words_per_row=num_words_per_row,
