@@ -1,8 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for
 from main import main
+from dotenv import load_dotenv
 import os
 
 app = Flask(__name__)
+
+load_dotenv()
 
 PORT = int(os.getenv("PORT", 5100))
 
@@ -14,17 +17,21 @@ def index():
 
 def save_file(request):
     if "file" not in request.files:
-        return "No file uploaded", 400
+        raise ValueError("No file part")
     file = request.files["file"]
     if file.filename == "" or file.filename is None:
-        return "No file selected", 400
+        raise ValueError("No file uploaded")
     if file:
         file.save(f"uploads/input{file.filename[-4:]}")
+    return file.filename
 
 
 @app.route("/api/run_clustering", methods=["POST"])
 def run_clustering():
-    save_file(request)
+    try:
+        file_name = save_file(request)
+    except ValueError as e:
+        return str(e)
     col_delimiter = request.form.get("col_delimiter", default=",")
     word_column_template = request.form.get("word_column", default="word%d").replace(
         "1", "%d"
@@ -44,7 +51,7 @@ def run_clustering():
     outlier_detection_threshold = 1
     merge_threshold = 0.8
 
-    main(
+    execution_time = main(
         col_delimiter=col_delimiter,
         num_words_per_row=num_words_per_row,
         word_column_template=word_column_template,
@@ -58,7 +65,13 @@ def run_clustering():
         K=num_clusters,
         merge_threshold=merge_threshold,
     )
-    return redirect(url_for("index"))
+    return redirect(url_for("results", execution_time=execution_time))
+
+
+@app.route("/results")
+def results():
+    execution_time = request.args.get("execution_time", default=0.0, type=float)
+    return render_template("results.html", execution_time=execution_time)
 
 
 if __name__ == "__main__":

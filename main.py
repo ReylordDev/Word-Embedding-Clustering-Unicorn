@@ -6,13 +6,20 @@ from sentence_transformers import SentenceTransformer
 from sklearn.cluster import AgglomerativeClustering, KMeans
 from sklearn.metrics import silhouette_score
 from tqdm import tqdm
+import time
+import logging
 
 INPUT_FILE_PATH = "uploads/input.csv"
 CACHE_FOLDER = ".cache/huggingface/hub"
-CLUSTERING_OUTPUT_FILE = "outputs/clustering_output.csv"
-PAIRWISE_SIMILARITIES_OUTPUT_FILE = "outputs/pairwise_similarities.csv"
-OUTPUT_FILE_PATH = "outputs/output.csv"
+CLUSTERING_OUTPUT_FILE = "static/outputs/clustering_output.csv"
+PAIRWISE_SIMILARITIES_OUTPUT_FILE = "static/outputs/pairwise_similarities.csv"
+OUTPUT_FILE_PATH = "static/outputs/output.csv"
 LANGUAGE_MODEL = "BAAI/bge-large-en-v1.5"
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 
 def read_input_file(
@@ -118,6 +125,7 @@ def find_number_of_clusters(
     bics = []
     for K in tqdm(K_values):
         print(f"Computing K = {K}")
+        logging.info(f"Computing K = {K}")
         clustering = KMeans(n_clusters=K, n_init=10, random_state=seed)
         clustering.fit(embeddings_normalized, sample_weight=sample_weights)
         sil = silhouette_score(np.asarray(embeddings_normalized), clustering.labels_)
@@ -177,6 +185,10 @@ def cluster_and_merge(
             "Merging similar clusters together until the cosine similarity of all cluster centers is below %g"
             % merge_threshold
         )
+        logging.info(
+            "Merging similar clusters together until the cosine similarity of all cluster centers is below %g",
+            merge_threshold,
+        )
         # merge the closest clusters using Agglomorative Clustering
         # until everything is closer than the threshold
         meta_clustering = AgglomerativeClustering(
@@ -195,6 +207,10 @@ def cluster_and_merge(
                 print(
                     "the following clusters got merged together: %s"
                     % (", ".join(merged_exemplars))
+                )
+                logging.info(
+                    "the following clusters got merged together: %s",
+                    ", ".join(merged_exemplars),
                 )
 
         # override the original k-means result with the merged clusters
@@ -318,6 +334,7 @@ def main(
     K: int = 5,
     merge_threshold: float = 1.0,
 ):
+    start_time = time.time()
     # read the input file
     rows, word_counts, headers, col_idxs, out_col_idxs = read_input_file(
         col_delimiter=col_delimiter,
@@ -329,7 +346,11 @@ def main(
     word_count = sum(word_counts.values())
     unique_word_count = len(word_counts)
     print(f"Number of rows: {len(rows)}")
+    logging.info(f"Number of rows: {len(rows)}")
     print(f"Number of unique words: {unique_word_count}, total words: {word_count}")
+    logging.info(
+        f"Number of unique words: {unique_word_count}, total words: {word_count}"
+    )
     words = list(word_counts.keys())
 
     # embed the words using the language model
@@ -339,12 +360,14 @@ def main(
     )  # shape (no_of_unique_words, embedding_dim)
     norm_embeddings = np.array(norm_embeddings)  # Type casting (only for IDE)
     print(f"Shape of embeddings: {norm_embeddings.shape}")
+    logging.info(f"Shape of embeddings: {norm_embeddings.shape}")
 
     # remove outliers
     words, norm_embeddings = outlier_detection(
         words, norm_embeddings, outlier_k, outlier_detection_threshold
     )
     print(f"Number of remaining words after outlier detection: {len(words)}")
+    logging.info(f"Number of remaining words after outlier detection: {len(words)}")
 
     # a list of how often each word was named
     sample_weights = []
@@ -358,6 +381,7 @@ def main(
             norm_embeddings, max_num_clusters, sample_weights, seed
         )
         print(f"Automatically determined number of clusters: {K}")
+        logging.info(f"Automatically determined number of clusters: {K}")
 
     # cluster the embeddings
     cluster_idxs, centers_normalized = cluster_and_merge(
@@ -366,6 +390,7 @@ def main(
     K_new = centers_normalized.shape[0]
     if K_new < K:
         print(f"Reduced number of clusters by merging to {K_new}")
+        logging.info(f"Reduced number of clusters by merging to {K_new}")
     K = K_new
 
     # output the clustering results
@@ -379,10 +404,14 @@ def main(
         col_delimiter,
     )
     print(f"Clustering written to {CLUSTERING_OUTPUT_FILE}")
+    logging.info(f"Clustering written to {CLUSTERING_OUTPUT_FILE}")
 
     # output the pairwise similarities between all cluster centers
     output_pairwise_similarities(PAIRWISE_SIMILARITIES_OUTPUT_FILE, centers_normalized)
     print(f"Pairwise similarities written to {PAIRWISE_SIMILARITIES_OUTPUT_FILE}")
+    logging.info(
+        f"Pairwise similarities written to {PAIRWISE_SIMILARITIES_OUTPUT_FILE}"
+    )
 
     # update the input file with the cluster indices
     output_cluster_indices(
@@ -397,6 +426,11 @@ def main(
         col_delimiter,
     )
     print(f"Cluster indices written to {INPUT_FILE_PATH}")
+    logging.info(f"Cluster indices written to {INPUT_FILE_PATH}")
+
+    execution_time = time.time() - start_time
+
+    return execution_time
 
 
 if __name__ == "__main__":

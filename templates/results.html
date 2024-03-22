@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{url_for('static',filename='dist/output.css')}}"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
+    </style>
+    <script src="{{url_for('static',filename='src/results.js')}}"></script>
+    <title>Clustering Results</title>
+  </head>
+  <body class="flex flex-col">
+    <div class="flex gap-4">
+      <h5>Updated Input File</h5>
+      <a
+        href="static/outputs/output.csv"
+        class="bg-green-500 text-white p-2 rounded-md"
+        download="output.csv"
+      >
+        Download
+      </a>
+    </div>
+    <div class="flex gap-4">
+      <h5>Clustering Output</h5>
+      <a
+        href="static/outputs/clustering_output.csv"
+        class="bg-green-500 text-white p-2 rounded-md"
+        download="clustering_output.csv"
+      >
+        Download
+      </a>
+    </div>
+    <div class="flex gap-4">
+      <h5>Pairwise Similarities</h5>
+      <a
+        href="static/outputs/pairwise_similarities.csv"
+        class="bg-green-500 text-white p-2 rounded-md"
+        download="pairwise_similarities.csv"
+      >
+        Download
+      </a>
+    </div>
+    <div>Execution Time: {{ "%.2f"| format(execution_time) }} Seconds</div>
+  </body>
+</html>
