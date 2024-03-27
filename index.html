@@ -11,6 +11,7 @@
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
     </style>
+    <script src="preload.js"></script>
     <title>Word Embedding Clustering</title>
   </head>
   <body class="flex flex-col">
@@ -28,14 +29,8 @@
     >
       <div class="flex bg-blue-300 p-4">
         <div id="dropZone" class="bg-zinc-400">
-          <form
-            id="uploadForm"
-            action="/api/upload"
-            method="post"
-            enctype="multipart/form-data"
-          >
-            <input type="file" id="fileInput" name="file" form="parameterForm"/>
-          </form>
+          <button id="uploadButton" type="button" class="bg-white border border-black rounded-md p-2">Upload File</button>
+          <div id="filePath"></div>
         </div>
         <div
           id="File-Parameters"
@@ -181,5 +176,6 @@
         >Run Clustering</button>
       </div>
     </form>
+    <script src="renderer.js"></script>
   </body>
 </html>
