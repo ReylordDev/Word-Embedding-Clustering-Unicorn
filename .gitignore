@@ -8,3 +8,6 @@ tailwindcss.exe
 uploads/*
 .env
 static/outputs/*
+node_modules
+package-lock.json
+out
