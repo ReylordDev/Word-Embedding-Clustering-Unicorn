@@ -1,3 +1,7 @@
+# Important
+
+Moving to [new repository](https://github.com/ReylordDev/Word-Clustering-Tool-for-SocPsych)
+
 # Fork
 
 Originally forked from [here](https://gitlab.com/bpaassen/word_embedding_clustering).
